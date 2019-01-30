@@ -81,7 +81,7 @@ function res = IRLS(X, Y, Winit, verbose)
 
 if nargin<4; verbose = 0;end
 if nargin<3; Winit = zeros(q,K-1);end % if there is no a specified initialization
-lambda = 1e-9;% if a MAP regularization (a gaussian prior on W) (L_2 penalization); lambda isa positive hyperparameter
+lambda = 1e-6;% if a MAP regularization (a gaussian prior on W) (L_2 penalization); lambda isa positive hyperparameter
 
 I = eye(q*(K-1));% define an identity matrix
 

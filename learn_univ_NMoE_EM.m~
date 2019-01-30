@@ -2,7 +2,8 @@ function solution = learn_univ_NMoE_EM(Y, x, K, p, q, nbr_EM_tries, max_iter_EM,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % function solution = learn_univ_NMoE_EM(Y, x, K, p, q, nbr_EM_tries, max_iter_EM, threshold, verbose_EM, verbose_IRLS)
 
-% Learn a normal mixture of experts by using the EM algorithm.
+% Learn a Regression model with a Hidden Logistic Process (RHLP) for
+% modeling n curves (n>=1). The learning is performed by EM.
 %
 % Inputs :
 %

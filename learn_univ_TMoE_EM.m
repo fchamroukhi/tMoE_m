@@ -1,81 +1,39 @@
 function solution = learn_univ_TMoE_EM(Y, x, K, p, q, total_EM_tries, max_iter_EM, threshold, verbose_EM, verbose_IRLS)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%function solution = learn_TMoE_EM(X, K, p, q, fs, total_EM_tries, init_EM_kmeans, verbose_EM, verbose_IRLS)
-%
-% Learn a Regression model with a Hidden Logistic Process (RHLP) for
-% modeling n curves (n>=1). The learning is performed by EM.
-%
-% Inputs :
-%
-%          1. X : Table of n curves each curve is composed of m points : dim(X)=[n m]
-%                * Each curve is observed during the interval [0,T]=[t_1,...,t_m]
-%                * t{j}-t_{j-1} = dt (sampling period)
-%
-%          2. K : Number of polynomial regression components (regimes)
-%          3. p : degree of the polynomials
-%          4. q :  order of the logistic regression (choose 1 for
-%          convex segmentation)
-%          5. fs : frequecy of sampling for the curves
-%          6. total_EM_tries :  (the solution providing the highest log-lik
-%          is chosen
-%          7. verbose_EM : set to 1 for printing the "log-lik"  values during
-%          EM iterations (by default verbose_EM = 0)
-%          8. verbose_IRLS : set to 1 for printing the values of the criterion
-%             optimized by IRLS at each IRLS iteration. (IRLS is used at
-%             each M step of EM). (By default: verbose_EM = 0)
-%
-% Outputs :
-%
-%          1. solution : structure containing mainly the following fields:
-%                      1.1 param : the model parameters:(W,beta1,...,betaK,sigma1,...,sigmaK).
-%                          param is a structure containing the following
-%                          fields:
-%                          1.1.1 wk = (w1,...,wK-1) parameters of the logistic process:
-%                          matrix of dimension [(q+1)x(K-1)] with q the
-%                          order of logistic regression.
-%                          1.1.2 betak = (beta1,...,betaK) polynomial
-%                          regression coefficient vectors: matrix of
-%                          dimension [(p+1)xK] p being the polynomial
-%                          degree.
-%                          1.1.3 sigmak = (sigma1,...,sigmak) : the
-%                          variances for the K regmies. vector of dimension [Kx1]
-%
-%          4. tjk : post prob (fuzzy segmentation matrix of dim [mxK])
-%          5. Zjk : Hard segmentation matrix of dim [mxK] obtained by the
-%          MAP rule :  z_{jk} = 1 if and only z_j = arg max_k tjk
-%          (k1,...,K)
-%          appartient � la classe k et zero sinon.
-%          6. klas : column vector of the labels issued from Zjk, its
-%          elements are klas(j)= k (k=1,...,K.)
-%          8. theta : parameter vector of the model: theta=(wk,betak,sigmak).
-%              column vector of dim [nu x 1] with nu = nbr of free parametres
-%
-%          9. Ey: curve expectation : sum of the polynomial components betak ri weighted by
-%             the logitic probabilities pijk: Ey(j) = sum_{k=1}^K pijk betak rj, j=1,...,m. Ey
-%              is a column vector of dimension m
-%          13. ml : log-lik at convergence of EM
-%          14. stored_loglik : vector of stored valued of the log-lik at each EM
-%          iteration
-%
-%          17. BIC : valeur du critre BIC.  BIC = ml - nu*log(nm)/2.
-%          17. ICL : valeur du critre ICL.  BIC = cl - nu*log(nm)/2.
-%          18. AIC : valeur du critere AIC. AIC = ml - nu.
-%          20. nu : nbr of free model parametres
-
-%          21. phi :  Regression (covariate, Vendermond, design) matrices
-%          22. XAlpha : design matrix for the logistic regression: matrix of dim [mx(q+1)].
-%          23. XBeta : design matrix for the polynomial regression: matrix of dim [mx(p+1)].
-%
-%          2. log_fxj : logarithme des probabilites des
-%          observations : log_fxj = log(sum_{i=1}^n sum_{k=1}^K pijk
-%          fk(xi)). vecteur colonne de dim n
-%          3. fxj : probas des observations : sum_{j=1}^m sum_{k=1}^K pijk
-%          fk(xj)). vecteur colonne de dim n
-
-
-
-% Faicel CHAMROUKHI
-% Mise � jour (01 Novembre 2008)
+% TMoE_Matlab
+% 
+% A Matlab/Octave toolbox for modeling, sampling, inference, and clustering heteregenous data with Robust of Mixture-of-Experts using the t distribution.
+% 
+% The code can be run on simulated data and some provided benchmarks (please look to the functions main... for more details)
+% 
+% Please cite the following papers for this code:
+% 
+% @article{Chamroukhi-TMoE-2016,
+% 	Author = {F. Chamroukhi},
+% 	Journal = {Neural Networks - Elsevier},
+% 	Title = {Robust mixture of experts modeling using the $t$-distribution},
+% 	Volume = {79},
+% 	pages = {20--36},
+% 	url =  {https://chamroukhi.com/papers/TMoE.pdf},
+% 		Year = {2016}
+% 	}
+%   
+% @article{NguyenChamroukhi-MoE,
+% 	Author = {Hien D. Nguyen and Faicel Chamroukhi},
+% 	Journal = {Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery},
+% 	Title = {Practical and theoretical aspects of mixture-of-experts modeling: An overview},
+% publisher = {Wiley Periodicals, Inc},
+% issn = {1942-4795},
+% doi = {10.1002/widm.1246},
+% pages = {e1246--n/a},
+% keywords = {classification, clustering, mixture models, mixture of experts, neural networks},
+% 	Month = {Feb},
+% Year = {2018},
+% url = {https://chamroukhi.com/papers/Nguyen-Chamroukhi-MoE-DMKD-2018}
+% }
+% 
+% Developed and written by Faicel Chamroukhi
+% (c) F. Chamroukhi (2015)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 warning off

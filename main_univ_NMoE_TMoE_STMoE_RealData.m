@@ -72,17 +72,17 @@ if strcmp(data_model,'Tone')
 end
 %% Temperature Anomaly
 if strcmp(data_model,'TemperatureAnomaly')
-    load 'TemperatureAnomaly';
+    load 'data/TemperatureAnomaly';
     x = TemperatureAnomaly(:,1);%(3:end-2,1); % if the values for 1880 1881, 2013 and 2014 are not included (only from 1882-2012)
     y = TemperatureAnomaly(:,2);%(3:end-2,2); % if the values for 1880 1881, 2013 and 2014 are not included (only from 1882-2012)
 end
 
-%% Sinc
-if strcmp(data_model,'Sinc')
-    x=linspace(-1,1,n);
-    stats.Ey = sinc(pi*x)';
-    y = stats.Ey + .1*randn(n,1);
-end
+% %% Sinc
+% if strcmp(data_model,'Sinc')
+%     x=linspace(-1,1,n);
+%     stats.Ey = sinc(pi*x)';
+%     y = stats.Ey + .1*randn(n,1);
+% end
 
 
 %% save the data
