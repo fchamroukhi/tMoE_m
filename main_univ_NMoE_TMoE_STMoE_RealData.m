@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Matlab codes for univariate non-normal mixture of (linear) experts
+% Matlab/octave toolbox for univariate non-normal mixture of (linear) experts
 % (NNMoE):
 %
 % 1. normal mixture of experts (NMoE)
