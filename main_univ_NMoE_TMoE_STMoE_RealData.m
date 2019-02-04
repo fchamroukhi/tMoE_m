@@ -5,7 +5,7 @@
 %
 % 1. normal mixture of experts (NMoE)
 % 2. skew-normal mixture (SNMoE)
-% 3. t mixture of experts (TMoE)
+% 3. >>> t mixture of experts (TMoE) <<<
 % 4. skew-t mixture of experts (STMoE)
 %
 % C By Faicel Chamroukhi
@@ -20,12 +20,13 @@ clc;
 set(0,'defaultaxesfontsize',14);
 %% model for data generation
 data_model = 'Tone'; K = 2; p = 1; q = 1;
-data_model = 'TemperatureAnomaly'; K = 2; p = 1; q = 1;
+
+%data_model = 'TemperatureAnomaly'; K = 2; p = 1; q = 1;
 
 
 %% model for the inference
  inference_model = 'NMoE';
-%inference_model = 'TMoE';
+ inference_model = 'TMoE';
 % inference_model = 'SNMoE';
 % inference_model = 'STMoE';
 % inference_model = 'LMoE';
@@ -45,30 +46,11 @@ max_iter_MM = 800;
 threshold = 1e-5;
 verbose_MM = 1;
 
-%
-WithOutilers = 1;
-SaveResults  = 0;
-
 %% Tone data set
 if strcmp(data_model,'Tone')
-    data = xlsread('./Results/Real-Data/Tone/Tone.xlsx');
+    data = xlsread('data/Tone.xlsx');
     x = data(:,1);
     y = data(:,2);
-    
-    if (WithOutilers)
-        %     rate = 0.1;
-        %     No = round(length(y)*rate);
-        %     outilers = -1.5 + 2*rand(No,1);
-        %     tmp = randperm(length(y));
-        %     Indout = tmp(1:No);
-        %     y(Indout) = -.1;%outilers;
-        % end
-        y   = [y; 4*ones(10,1)];
-        x   = [x; 0*ones(10,1)];
-                    tmp = randperm(length(y));
-                    x   = x(tmp);
-                    y   = y(tmp);
-    end
 end
 %% Temperature Anomaly
 if strcmp(data_model,'TemperatureAnomaly')
@@ -84,30 +66,8 @@ end
 %     y = stats.Ey + .1*randn(n,1);
 % end
 
-
-%% save the data
-if SaveResults
-    if WithOutilers
-        saveDirectory = ['./Results/Real-Data-with-Outliers/',data_model];
-        eval(['cd ', saveDirectory]);
-        % save the data
-        eval(['save x_',data_model,'_outliers x']);
-        eval(['save y_',data_model,'_outliers y']);
-    else
-        saveDirectory = ['./Results/Real-Data/',data_model];
-        eval(['cd ', saveDirectory]);
-        % save the data
-        eval(['save x_',data_model,' x']);
-        eval(['save y_',data_model,' y']);
-    end
-    cd '~/Desktop/Mixtures-Non-Normals/Codes-NNMoE/codes-non-normal-MoE';
-end
-% % noisy switch
-% load y
-% load x
-
 figure,
-plot(x, y, 'o')
+plot(x, y, 'ko')
 xlabel('x')
 ylabel('y')
 title([data_model,' data set'])
@@ -135,22 +95,22 @@ switch inference_model
         error('Unknown chosen model');
 end
 
-figure, plot(y,'ko'),
-hold on, plot(solution.Ey_k,'--')
-hold on, plot(solution.Ey,'r-','linewidth',2)
-%set(gca,'XtickLabel',[1:length(x)])
-xlabel('t')
-ylabel('power (W)')
-ylim([200 500])
-
-figure,plot(solution.Piik,'linewidth',2)
-xlabel('t')
-ylabel('Gating Network')
-
-% save y y
-% save x x
-% cd '~/Desktop/Talk-ERCIM-2015/Figures/'
-% saveas(gca,['Switch-',inference_model],'epsc')
+% figure, plot(y,'ko'),
+% hold on, plot(solution.Ey_k,'--')
+% hold on, plot(solution.Ey,'r-','linewidth',2)
+% %set(gca,'XtickLabel',[1:length(x)])
+% xlabel('t')
+% ylabel('power (W)')
+% ylim([200 500])
+% 
+% figure,plot(solution.Piik,'linewidth',2)
+% xlabel('t')
+% ylabel('Gating Network')
+% 
+% % save y y
+% % save x x
+% % cd '~/Desktop/Talk-ERCIM-2015/Figures/'
+% % saveas(gca,['Switch-',inference_model],'epsc')
 
 %% plot of the results %%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(data_model,'Tone')
@@ -347,31 +307,31 @@ if strcmp(data_model,'Motorcycle')
 end
 
 
-%% save the results
-if SaveResults
-    if WithOutilers
-        saveDirectory = ['./Results/Real-Data-with-Outliers/',data_model];
-        eval(['cd ', saveDirectory]);
-        % save the solution
-        eval(['save sol_',data_model,'_noisy_',inference_model,' solution']);
-        % save the figures
-        saveas(1,[data_model,'_data_Outliers_',inference_model,'_MixingProb'],'epsc')
-        saveas(2,[data_model,'_data_Outliers_',inference_model,'_EstimatedPartition'],'epsc')
-        saveas(3,[data_model,'_data_Outliers_',inference_model,'_Means_ConfidRegions'],'epsc')
-        saveas(4,[data_model,'_data_Outliers_',inference_model,'_Loglik'],'epsc')
-    else
-        saveDirectory = ['./Results/Real-Data/',data_model];
-        eval(['cd ', saveDirectory]);
-        % save the solution
-        eval(['save sol_',data_model,'_',inference_model,' solution']);
-        % save the figures
-        saveas(1,[data_model,'_data_',inference_model,'_MixingProb'],'epsc')
-        saveas(2,[data_model,'_data_',inference_model,'_EstimatedPartition'],'epsc')
-        saveas(3,[data_model,'_data_',inference_model,'_Means_ConfidRegions'],'epsc')
-        saveas(4,[data_model,'_data_',inference_model,'_Loglik'],'epsc')
-    end
-    cd '~/Desktop/Mixtures-Non-Normals/Codes-NNMoE/codes-non-normal-MoE';
-end
+% %% save the results
+% if SaveResults
+%     if WithOutilers
+%         saveDirectory = ['./Results/Real-Data-with-Outliers/',data_model];
+%         eval(['cd ', saveDirectory]);
+%         % save the solution
+%         eval(['save sol_',data_model,'_noisy_',inference_model,' solution']);
+%         % save the figures
+%         saveas(1,[data_model,'_data_Outliers_',inference_model,'_MixingProb'],'epsc')
+%         saveas(2,[data_model,'_data_Outliers_',inference_model,'_EstimatedPartition'],'epsc')
+%         saveas(3,[data_model,'_data_Outliers_',inference_model,'_Means_ConfidRegions'],'epsc')
+%         saveas(4,[data_model,'_data_Outliers_',inference_model,'_Loglik'],'epsc')
+%     else
+%         saveDirectory = ['./Results/Real-Data/',data_model];
+%         eval(['cd ', saveDirectory]);
+%         % save the solution
+%         eval(['save sol_',data_model,'_',inference_model,' solution']);
+%         % save the figures
+%         saveas(1,[data_model,'_data_',inference_model,'_MixingProb'],'epsc')
+%         saveas(2,[data_model,'_data_',inference_model,'_EstimatedPartition'],'epsc')
+%         saveas(3,[data_model,'_data_',inference_model,'_Means_ConfidRegions'],'epsc')
+%         saveas(4,[data_model,'_data_',inference_model,'_Loglik'],'epsc')
+%     end
+%     cd '~/Desktop/Mixtures-Non-Normals/Codes-NNMoE/codes-non-normal-MoE';
+% end
 
 
 

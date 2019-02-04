@@ -101,8 +101,6 @@ Alphak = [0, 8]';
 Betak = [0 0;
     -1 1];
 Sigmak = [.1, .1];%the standard deviations
-% Lambdak = [2, 3];
-% Nuk = [5, 7];
 Lambdak = [3, 5];
 Nuk = [5, 7];
 
@@ -111,8 +109,8 @@ Zetak = [.1, .1]; % for the LMoE
 x = linspace(-1, 1, n);
 
 %%
+WithOutliers = 0; % to generate a sample with outliers
 
-WithOutliers = 0;
 SaveResults  = 0;
 %%
 %% draw n samples from a chosen model :

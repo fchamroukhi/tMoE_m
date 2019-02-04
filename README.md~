@@ -4,8 +4,8 @@ A Matlab/Octave toolbox for modeling, sampling, inference, and clustering hetere
 
 The code can be run on simulated data and some provided benchmarks (please look to the functions main... for more details):
 
-run 'main_univ_NMoE_SNMoE_TMoE_STMoE.m' for some simulated data
-run 'main_univ_NMoE_TMoE_STMoE_RealData.m' for some benchmarks
+main_univ_NMoE_SNMoE_TMoE_STMoE for some simulated data
+
 
 Please cite the following papers for this code:
 

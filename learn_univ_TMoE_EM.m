@@ -62,8 +62,8 @@ y = reshape(Y',[],1);
 best_loglik = -inf;
 stored_cputime = [];
 EM_try = 1;
-while EM_try <= total_EM_tries,
-    if total_EM_tries>1, disp(sprintf('EM run n°  %d  ',EM_try)); end
+while EM_try <= total_EM_tries
+    if total_EM_tries>1, fprintf(1, 'EM run n°  %d  \n ', EM_try); end
     time = cputime;
     %% EM Initialisation
     
@@ -72,7 +72,7 @@ while EM_try <= total_EM_tries,
     [Alphak, Betak, Sigma2k] = initialize_univ_NMoE(y,K, XAlpha, XBeta, segmental);
     if EM_try ==1, Alphak = zeros(q+1,K-1);end % set the first initialization to the null vector
     
-    %%1. Initialisation the dof Nuk's
+    %%1. Initialisation of the dof Nuk's
     %for k=1:K
     Nuk = 50*rand(1,K);
     %end
