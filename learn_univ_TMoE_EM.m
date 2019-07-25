@@ -1,13 +1,9 @@
 function solution = learn_univ_TMoE_EM(Y, x, K, p, q, total_EM_tries, max_iter_EM, threshold, verbose_EM, verbose_IRLS)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TMoE_Matlab
-% 
-% A Matlab/Octave toolbox for modeling, sampling, inference, and clustering heteregenous data with Robust of Mixture-of-Experts using the t distribution.
-% 
-% The code can be run on simulated data and some provided benchmarks (please look to the functions main... for more details)
-% 
+%learn_univ_TMoE_EM: fits a TMoE with a conditional EM algorithm
+%
 % Please cite the following papers for this code:
-% 
+%
 % @article{Chamroukhi-TMoE-2016,
 % 	Author = {F. Chamroukhi},
 % 	Journal = {Neural Networks - Elsevier},
@@ -17,7 +13,7 @@ function solution = learn_univ_TMoE_EM(Y, x, K, p, q, total_EM_tries, max_iter_E
 % 	url =  {https://chamroukhi.com/papers/TMoE.pdf},
 % 		Year = {2016}
 % 	}
-%   
+%
 % @article{NguyenChamroukhi-MoE,
 % 	Author = {Hien D. Nguyen and Faicel Chamroukhi},
 % 	Journal = {Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery},
@@ -31,7 +27,7 @@ function solution = learn_univ_TMoE_EM(Y, x, K, p, q, total_EM_tries, max_iter_E
 % Year = {2018},
 % url = {https://chamroukhi.com/papers/Nguyen-Chamroukhi-MoE-DMKD-2018}
 % }
-% 
+%
 % Developed and written by Faicel Chamroukhi
 % (c) F. Chamroukhi (2015)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -69,8 +65,9 @@ while EM_try <= total_EM_tries
     
     %%1. Initialisation of Alphak's, Betak's and Sigmak's
     segmental = 1;
-    [Alphak, Betak, Sigma2k] = initialize_univ_NMoE(y,K, XAlpha, XBeta, segmental);
-    if EM_try ==1, Alphak = zeros(q+1,K-1);end % set the first initialization to the null vector
+    [Alphak, Betak, Sigma2k] = initialize_univ_NMoE(y, K, XAlpha, XBeta, segmental);
+    
+    if EM_try ==1, Alphak = zeros(q+1, K-1);end % set the first initialization to the null vector
     
     %%1. Initialisation of the dof Nuk's
     %for k=1:K
@@ -92,10 +89,8 @@ while EM_try <= total_EM_tries
         
         Wik = zeros(m*n,K);
         for k = 1:K
-            
             muk = XBeta*Betak(:,k);
-            sigma2k = Sigma2k(k);
-            sigmak = sqrt(sigma2k);
+            sigmak = sqrt(Sigma2k(k));
             dik = (y - muk)/sigmak;
             %Dik(:,k) = dik;
             
@@ -126,28 +121,28 @@ while EM_try <= total_EM_tries
         Piik = res.piik;
         Alphak = res.W;
         %%
-        for k=1:K,
+        for k=1:K
             XBetak = XBeta.*(sqrt(Tauik(:,k).*Wik(:,k))*ones(1,p+1));
             yk = y.*sqrt(Tauik(:,k).*Wik(:,k));
             
-            %update the regression coefficients
+            % update the regression coefficients betak
             betak = XBetak'*XBetak\XBetak'*yk;
             Betak(:,k) = betak;
             
-            % % update the variances sigma2k
-            Sigma2k(k)= sum(Tauik(:,k).*Wik(:,k).*((y-XBeta*betak).^2))/sum(Tauik(:,k));%or change the divisor to sum(Tauik(:,k).*Wik(:,k))
+            % update the variances sigma2k
+            Sigma2k(k)= sum(Tauik(:,k).*Wik(:,k).*((y-XBeta*betak).^2))/sum(Tauik(:,k));
             
             %% if ECM (use an additional E-Step with the updatated betak and sigma2k
             dik = (y - XBeta*Betak(:,k))/sqrt(Sigma2k(k));
-            nuk = Nuk(k);
+            %nuk = Nuk(k);
             % E[Wi|yi,zik=1]
-            Wik(:,k) = (nuk + 1)./(nuk + dik.^2);
+            Wik(:,k) = (Nuk(k) + 1)./(Nuk(k) + dik.^2);
             
-            %% update the nuk (the robustness parameter)
+            % update the nuk (the robustness parameter)
             nu0 = Nuk(k);
-            Nuk(k) = fzero(@(nu) - psi((nu)/2) + log((nu)/2) + 1 ...
+            Nuk(k) = fzero(@(nu) -psi(nu./2) + log(nu./2) + 1 ...
                 + (1/sum(Tauik(:,k)))*sum(Tauik(:,k).*(log(Wik(:,k)) - Wik(:,k)))...
-                + psi((Nuk(k) + 1)/2) - log((Nuk(k) + 1)/2), nu0);
+                + psi((Nuk(k) + 1)/2) - log((Nuk(k) + 1)/2), [1e-4, 200]);
         end
         
         
