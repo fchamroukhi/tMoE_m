@@ -67,7 +67,7 @@ while EM_try <= total_EM_tries
     segmental = 1;
     [Alphak, Betak, Sigma2k] = initialize_univ_NMoE(y, K, XAlpha, XBeta, segmental);
     
-    if EM_try ==1, Alphak = zeros(q+1, K-1);end % set the first initialization to the null vector
+    %if EM_try ==1, Alphak = zeros(q+1, K-1);end % set the first initialization to the null vector
     
     %%1. Initialisation of the dof Nuk's
     %for k=1:K
@@ -140,9 +140,14 @@ while EM_try <= total_EM_tries
             
             % update the nuk (the robustness parameter)
             nu0 = Nuk(k);
-            Nuk(k) = fzero(@(nu) -psi(nu./2) + log(nu./2) + 1 ...
-                + (1/sum(Tauik(:,k)))*sum(Tauik(:,k).*(log(Wik(:,k)) - Wik(:,k)))...
-                + psi((Nuk(k) + 1)/2) - log((Nuk(k) + 1)/2), [1e-4, 200]);
+            try
+                Nuk(k) = fzero(@(nu) -psi(nu./2) + log(nu./2) + 1 ...
+                    + (1/sum(Tauik(:,k)))*sum(Tauik(:,k).*(log(Wik(:,k)) - Wik(:,k)))...
+                    + psi((Nuk(k) + 1)/2) - log((Nuk(k) + 1)/2), [1e-4, 200]);
+            catch
+                warning('The function in nu doesnt differ in sign!');
+                Nuk(k) = nu0;
+            end
         end
         
         
@@ -189,12 +194,12 @@ while EM_try <= total_EM_tries
     solution.Ey = Ey;
     
     % Var[yi|zi=k]
-    Vary_k = Nuk./(Nuk-2).*Sigma2k;
-    solution.Vary_k = Vary_k;
+    Vy_k = Nuk./(Nuk-2).*Sigma2k;
+    solution.Vy_k = Vy_k;
     
     % Var[yi]
-    Vary = sum(Piik.*(Ey_k.^2 + ones(m,1)*Vary_k),2) - Ey.^2;
-    solution.Vary = Vary;
+    Vy = sum(Piik.*(Ey_k.^2 + ones(m,1)*Vy_k),2) - Ey.^2;
+    solution.Vy = Vy;
     
     
     %%% BIC AIC et ICL

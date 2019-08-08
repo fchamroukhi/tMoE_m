@@ -57,14 +57,14 @@ Ey_k = XBeta*Betak;
 Ey = sum(Piik.*Ey_k,2);
 
 % Var[yi|zi=k]
-Vary_k = Nuk./(Nuk-2).*(Sigmak.^2);
+Vy_k = Nuk./(Nuk-2).*(Sigmak.^2);
 
 % Var[yi]
-Vary = sum(Piik.*(Ey_k.^2 + ones(n,1)*Vary_k),2) - Ey.^2;
+Vy = sum(Piik.*(Ey_k.^2 + ones(n,1)*Vy_k),2) - Ey.^2;
 
 stats.Ey_k = Ey_k;
 stats.Ey = Ey;
-stats.Vary_k = Vary_k;
-stats.Vary = Vary;
+stats.Vy_k = Vy_k;
+stats.Vy = Vy;
 
 

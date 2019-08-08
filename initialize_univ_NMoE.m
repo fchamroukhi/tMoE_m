@@ -1,31 +1,18 @@
 function [Alphak, Betak, Sigma2k] = initialize_univ_NMoE(y, K, Xalpha, Xbeta, segmental)
-% init_modele_regression estime les parametres de regression initiaux d'un
-% modele de regression à processus logistique cache,où la loi conditionnelle
-% des observations est une gaussienne.
+%  initialize_univ_NMoE initializes the parameters of a univariate normal mixture-of-exerts
 %
-% Entrees :
+% Inputs:
+%     y: n by 1 observed sampe
+%     K: number of expert components
+%     Xa: design mat of the softmax gating network
+%     Xb: design mat of the Gaussian regressor experts network
+%     seg: option, if the data are temporal (for segmentation) or not
+% Outputs:
+%     Alphak: matrix parameters of the softmax gating network
+%     Betak: matrix parameters of the Gaussian regressor experts network
+%     Sigma2k: vector of the variances of the regressors
 %
-%        y: signal
-%        nsignal (notez que pour la partie parametrisation des signaux les
-%        observations sont monodimentionnelles)
-%        K : nbre d'états (classes) cachés
-%        duree_signal : = duree du signal en secondes
-%        fs : fréquence d'échantiloonnage des signaux en Hz
-%        ordre_reg : ordre de regression olynomiale
-%
-% Sorties :
-%
-%
-%         param : parametres initiaux du modele de
-%         regression : structure contenant les champs :
-%         1. betak : le vecteur parametre de regression associe a la classe k.
-%         vecteur colonne de dim [(p+1)x1]
-%         2. sigma2k(k) = variance de x(i) sachant z(i)=k; sigma2k(j) =
-%         sigma^2_k.
-%
-%
-%
-% Faicel Chamroukhi, Novembre 2008
+% Faicel Chamroukhi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin==4, segmental = 0;end
@@ -34,34 +21,29 @@ n = length(y);
 p = size(Xbeta,2) - 1;
 q = size(Xalpha,2) - 1;
 
-% Intialise the softmax parameters
-Alphak = rand(q+1,K-1);%initialisation aléatoire du vercteur param�tre du IRLS
 
 % Initialise the regression parameters (coeffecients and variances):
-
 if ~segmental
-    Zik = zeros(n,K);
     klas = randi(K,n,1);
-    Zik(klas*ones(1,K)==ones(n,1)*[1:K])=1;
-    Tauik = Zik;
     
     Betak = zeros(p+1,K);
     Sigma2k = zeros(1,K);
     for k=1:K
-        Xk = Xbeta.*(sqrt(Tauik(:,k)*ones(1,p+1)));
-        yk = y.*sqrt(Tauik(:,k));
-        
+        Xk = Xbeta(klas==k,:);
+        yk = y(klas==k);
         %the regression coefficients
         betak = Xk'*Xk\Xk'*yk;
         Betak(:,k) = betak;
         
         %the variances sigma2k
-        Sigma2k(k)= sum(Tauik(:,k).*((y-Xbeta*betak).^2))/sum(Tauik(:,k));
+        Sigma2k(k)= sum((yk-Xk*betak).^2)/length(yk);
     end
 else%segmental : segment uniformly the data and estimate the parameters
     nk = round(n/K)-1;
     Betak = zeros(p+1,K);
     Sigma2k = zeros(1,K);
+    
+    klas = zeros(n,1);
     for k=1:K
         yk = y((k-1)*nk+1:k*nk);
         Xk = Xbeta((k-1)*nk+1:k*nk,:);
@@ -70,6 +52,16 @@ else%segmental : segment uniformly the data and estimate the parameters
         muk = Xk*Betak(:,k);
         sigma2k = (yk-muk)'*(yk-muk)/length(yk);%
         Sigma2k(k) =  sigma2k;
+        
+        %
+        klas((k-1)*nk+1:k*nk)=k;
     end
 end
 
+% Intialise the softmax parameters
+Alphak = zeros(q+1,K-1);
+Z = zeros(n,K);
+Z(klas*ones(1,K)==ones(n,1)*[1:K])=1;
+Tau = Z;
+res = IRLS(Xalpha, Tau, Alphak);
+Alphak = res.W;
