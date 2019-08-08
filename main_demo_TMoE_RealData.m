@@ -7,13 +7,15 @@
 % TMoE provides a flexible and robust modeling framework for heterogenous data with possibly
 % heavy-tailed distributions and corrupted by atypical observations. TMoE consists of a mixture of K
 % t expert regressors network (of degree p) gated by a softmax gating network (with regression
-% degree q) and is represented by - The gating net. parameters $\alpha$'s of the softmax net. - The
-% experts network parameters: The location parameters (regression coefficients) $\beta$'s, scale
-% parameters $\sigma$'s, and the degree of freedom (robustness) parameters $\nu$'s. TMoE thus
-% generalises  mixtures of (normal, t, and) distributions and mixtures of regressions with these
-% distributions. For example, when $q=0$, we retrieve mixtures of (t-, or normal) regressions, and
-% when both $p=0$ and $q=0$, it is a mixture of (t-, or normal) distributions. It also reduces to
-% the standard (normal, t) distribution when we only use a single expert (K=1).
+% degree q) and is represented by 
+% - The gating net. parameters $\alpha$'s of the softmax net. 
+% - The experts network parameters: The location parameters (regression coefficients) $\beta$'s,
+% scale parameters $\sigma$'s, and the degree of freedom (robustness) parameters $\nu$'s.
+%
+% TMoE thus generalises  mixtures of (normal, t, and) distributions and mixtures of regressions with
+% these distributions. For example, when $q=0$, we retrieve mixtures of (t-, or normal) regressions,
+% and when both $p=0$ and $q=0$, it is a mixture of (t-, or normal) distributions. It also reduces
+% to the standard (normal, t) distribution when we only use a single expert (K=1).
 %  
 % Model estimation/learning is performed by a dedicated expectation conditional maximization (ECM)
 % algorithm by maximizing the observed data log-likelihood. We provide simulated examples to
