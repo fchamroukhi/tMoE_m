@@ -84,7 +84,7 @@ TMoE =  learn_TMoE_EM(y, x, K, p, q, nbr_EM_tries, max_iter_EM, threshold, verbo
 disp('- fit completed --')
 
 show_TMoE_results(x, y, TMoE)
-% Note that as it uses the skew-t, so the mean and the variance might be not defined (if Nu <1 and or <2), and hence the
+% Note that as it uses the t distribution, so the mean and the variance might be not defined (if Nu <1 and or <2), and hence the
 % mean functions and confidence regions might be not displayed..
 
 

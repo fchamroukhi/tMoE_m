@@ -82,6 +82,6 @@ disp('- fit completed --')
 %% plot of the results
 show_TMoE_results(x, y, TMoE, klas, stats)
 
-% Note that as it uses the skew-t, so the mean and the variance might be not defined (if Nu <1 and or <2), and hence the
+% Note that as it uses the t distribution, so the mean and the variance might be not defined (if Nu <1 and or <2), and hence the
 % mean functions and confidence regions might be not displayed..
 
