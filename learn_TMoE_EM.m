@@ -1,4 +1,4 @@
-function solution = learn_univ_TMoE_EM(Y, x, K, p, q, total_EM_tries, max_iter_EM, threshold, verbose_EM, verbose_IRLS)
+function solution = learn_TMoE_EM(Y, x, K, p, q, total_EM_tries, max_iter_EM, threshold, verbose_EM, verbose_IRLS)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %learn_univ_TMoE_EM: fits a TMoE with a conditional EM algorithm
 %
@@ -100,11 +100,10 @@ while EM_try <= total_EM_tries
             Wik(:,k) = wik;
             
             % piik*STE(.;muk;sigma2k;lambdak)
+            
             %weighted t linear expert likelihood
+            % use tlocation-scale function
             piik_fik(:,k) = Piik(:,k).*pdf('tlocationscale', y, muk, sigmak, nuk);
-            
-            % see also tpdf
-            
         end
         
         log_piik_fik = log(piik_fik);
@@ -170,57 +169,57 @@ while EM_try <= total_EM_tries
     solution.param = param;
     Piik = Piik(1:m,:);
     Tauik = Tauik(1:m,:);
-    solution.Piik = Piik;
-    solution.Tauik = Tauik;
-    solution.log_piik_fik = log_piik_fik;
-    solution.ml = loglik;
-    solution.stored_loglik = stored_loglik;
+    solution.stats.Piik = Piik;
+    solution.stats.Tauik = Tauik;
+    solution.stats.log_piik_fik = log_piik_fik;
+    solution.stats.ml = loglik;
+    solution.stats.stored_loglik = stored_loglik;
     %% parameter vector of the estimated SNMoE model
     Psi = [param.Alphak(:); param.Betak(:); param.Sigmak(:); param.Nuk(:)];
     %
-    solution.Psi = Psi;
+    solution.stats.Psi = Psi;
     
     %% classsification pour EM : MAP(piik) (cas particulier ici to ensure a convex segmentation of the curve(s).
-    [klas, Zik] = MAP(solution.Tauik);%solution.param.Piik);
-    solution.klas = klas;
+    [klas, Zik] = MAP(Tauik);%solution.stats.Piik);
+    solution.stats.klas = klas;
     
     % Statistics (means, variances)
     
     % E[yi|zi=k]
     Ey_k = XBeta(1:m,:)*Betak;
-    solution.Ey_k = Ey_k;
+    solution.stats.Ey_k = Ey_k;
     % E[yi]
     Ey = sum(Piik.*Ey_k,2);
-    solution.Ey = Ey;
+    solution.stats.Ey = Ey;
     
     % Var[yi|zi=k]
     Vy_k = Nuk./(Nuk-2).*Sigma2k;
-    solution.Vy_k = Vy_k;
+    solution.stats.Vy_k = Vy_k;
     
     % Var[yi]
     Vy = sum(Piik.*(Ey_k.^2 + ones(m,1)*Vy_k),2) - Ey.^2;
-    solution.Vy = Vy;
+    solution.stats.Vy = Vy;
     
     
     %%% BIC AIC et ICL
-    lenPsi = length(Psi);
-    solution.lenPsi = lenPsi;
+    df = length(Psi);
+    solution.stats.df = df;
     
-    solution.BIC = solution.ml - (lenPsi*log(n*m)/2);
-    solution.AIC = solution.ml - lenPsi;
+    solution.stats.BIC = solution.stats.ml - (df*log(n*m)/2);
+    solution.stats.AIC = solution.stats.ml - df;
     %% CL(theta) : complete-data loglikelihood
-    zik_log_piik_fk = (repmat(Zik,n,1)).*solution.log_piik_fik;
+    zik_log_piik_fk = (repmat(Zik,n,1)).*solution.stats.log_piik_fik;
     sum_zik_log_fik = sum(zik_log_piik_fk,2);
     comp_loglik = sum(sum_zik_log_fik);
-    solution.CL = comp_loglik;
-    solution.ICL = solution.CL - (lenPsi*log(n*m)/2);
-    solution.XBeta = XBeta(1:m,:);
-    solution.XAlpha = XAlpha(1:m,:);
+    solution.stats.CL = comp_loglik;
+    solution.stats.ICL = solution.stats.CL - (df*log(n*m)/2);
+    solution.stats.XBeta = XBeta(1:m,:);
+    solution.stats.XAlpha = XAlpha(1:m,:);
     
     %%
     
     if total_EM_tries>1
-        fprintf(1,'ml = %f \n',solution.ml);
+        fprintf(1,'ml = %f \n',solution.stats.ml);
     end
     if loglik > best_loglik
         best_solution = solution;
@@ -229,9 +228,9 @@ while EM_try <= total_EM_tries
 end%fin de la premi�re boucle while
 solution = best_solution;
 %
-if total_EM_tries>1;   fprintf(1,'best loglik:  %f\n',solution.ml); end
+if total_EM_tries>1;   fprintf(1,'best loglik:  %f\n',solution.stats.ml); end
 
-solution.cputime = mean(stored_cputime);
-solution.stored_cputime = stored_cputime;
+solution.stats.cputime = mean(stored_cputime);
+solution.stats.stored_cputime = stored_cputime;
 
 

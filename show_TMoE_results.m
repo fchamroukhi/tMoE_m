@@ -1,11 +1,13 @@
 function show_TMoE_results(x, y, TMoE, klas, TrueStats)
 
 set(0,'defaultaxesfontsize',12);
-color = {'k','r','b','g','m','c','y',   'k','r','b','g','m','c','y',    'k','r','b','g','m','c','y'};
+colors = {'k','r','b','g','m','c','y',   'k','r','b','g','m','c','y',    'k','r','b','g','m','c','y'};
+style =  {'k.','r.','b.','g.','m.','c.','y.','k.','r.','b.','g.','m.','c.','y.','k.','r.','b.','g.','m.','c.','y.'};
+
 yaxislim = [min(y)-std(y), max(y)+std(y)];
 
 param = TMoE.param;
-stats = TMoE;%.stats;
+stats = TMoE.stats;
 K = length(param.Nuk);
 
 if nargin>3
@@ -26,7 +28,7 @@ if nargin>3
     legend('boxoff')
     figure,
     for k=1:K
-        plot(x,stats.Piik(:,k),[color{k},'-'],'linewidth',2);
+        plot(x,stats.Piik(:,k),[colors{k},'-'],'linewidth',2);
         hold on;
     end
     hold off
@@ -57,8 +59,8 @@ if nargin>3
     hold all
     % true partiton
     for k=1:max(klas)
-        plot(x,TrueStats.Ey_k(:,k),color{k},'linewidth',1.2);
-        plot(x(klas==k),y(klas==k),[color{k},'o']);
+        plot(x,TrueStats.Ey_k(:,k),colors{k},'linewidth',1.2);
+        plot(x(klas==k),y(klas==k),[colors{k},'o']);
     end
     legend('True expert means','True clusters');
     
@@ -73,8 +75,8 @@ if nargin>3
     hold all
     % estimated partition
     for k=1:K
-        plot(x,stats.Ey_k(:,k),color{k},'linewidth',1.2);
-        plot(x(stats.klas==k),y(stats.klas==k),[color{k},'o']);
+        plot(x,stats.Ey_k(:,k),colors{k},'linewidth',1.2);
+        plot(x(stats.klas==k),y(stats.klas==k),[colors{k},'o']);
     end
     legend('Estimated expert means','Estimated clusters');    ylim(yaxislim)
     box on
@@ -110,9 +112,10 @@ else %eg. for real data with unknown classes etc
     legend([h1, h2(1), h3], 'data','TMoE mean function','Estimated Experts',...
         'Location','SouthWest');
     legend('boxoff')
+    
     figure,
     for k=1:K
-        plot(x,stats.Piik(:,k),[color{k},'-'],'linewidth',2);
+        plot(x,stats.Piik(:,k),[colors{k},'-'],'linewidth',2);
         hold on;
     end
     hold off
@@ -138,11 +141,30 @@ else %eg. for real data with unknown classes etc
     figure
     hold all
     for k=1:K
-        h1= plot(x,stats.Ey_k(:,k),color{k},'linewidth',1.2);
-        h2= plot(x(stats.klas==k),y(stats.klas==k),[color{k},'o']);
-        hold on
+        %         h1= plot(x,stats.Ey_k(:,k),color{k},'linewidth',1.2);
+        %         h2= plot(x(stats.klas==k),y(stats.klas==k),[color{k},'o']);
+        %         hold on
+        %     end
+        
+        %%
+        expertMean_k = stats.Ey_k(:,k);
+        %prob_model_k = solution.param.piik(:,k);
+        active_model_k = expertMean_k(stats.klas==k);
+        active_period_model_k = x(stats.klas==k);
+        
+        inactive_model_k = expertMean_k(stats.klas ~= k);
+        inactive_period_model_k = x(stats.klas ~= k);
+        if (~isempty(active_model_k))
+            plot(active_period_model_k,y(stats.klas==k),[colors{k},'o']);%, 'markersize', 0.2);
+            hold on,
+            plot(inactive_period_model_k,inactive_model_k,style{k},'markersize',0.01);
+            hold on,
+            plot(active_period_model_k, active_model_k,'Color', colors{k},'linewidth',2.5);
+            hold on
+        end
     end
-    legend('Estimated expert means','Estimated clusters');
+    %%
+    legend('Estimated clusters','TMoE expert means (non-active)','TMoE expert means (active)');
     ylim(yaxislim)
     box on
     xlabel('x'), ylabel('y');
